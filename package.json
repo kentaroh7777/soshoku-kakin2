@@ -12,6 +12,12 @@
     "test:watch": "vitest watch"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.8.0",
+    "mongodb-memory-server": "^10.0.0",
+    "mongoose": "^8.5.3",
     "next": "14.2.5",
     "next-auth": "^4.24.7",
     "react": "^18",
@@ -28,6 +34,8 @@
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -38,6 +46,7 @@
     "husky": "^9.1.4",
     "jsdom": "^24.1.1",
     "lint-staged": "^15.2.8",
+    "node-mocks-http": "^1.15.1",
     "prettier": "^3.3.3",
     "typescript": "^5",
     "vitest": "^2.0.5"
