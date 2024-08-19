@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 import nextConfig from '../../next.config.mjs'
 
+//const MONGODB_URI = process.env.MONGODB_URI
 const MONGODB_URI = nextConfig.env.MONGODB_URI
 // console.log(`process.env.MONGODB_URI: ${process.env.MONGODB_URI}`)
 // console.log(`MONGODB_URI: ${MONGODB_URI}`)

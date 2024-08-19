@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
 import mongoose from "mongoose"
-import connectDB from '../../../utils/database'
-import { userFindByToken } from '../../../model/user'
+import connectDB from '../../../../utils/database'
+import { User, userFindByToken } from '../../../../model/user'
 
-export async function PUT(request: Request): Promise<NextResponse> {
+
+export async function PUT(request: Request, context: {params: {id: string}}): Promise<NextResponse> {
+    const targetUserId = context.params.id;
+
     try {
         await connectDB()
 
@@ -14,15 +17,23 @@ export async function PUT(request: Request): Promise<NextResponse> {
             return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
         }
 
-        const { token, email, oldPassword, newPassword, nickname, profileText, profilePicture } = body;
+        const { token, email, oldPassword, newPassword, nickname, profileText, profilePicture, permission } = body;
 
         if (!token) {
             return NextResponse.json({ error: 'Token is required' }, { status: 401 });
         }
         // Verify token
-        const user = await userFindByToken(token)
-        if (!user) {
+        const targetUser = await User.findById(targetUserId)
+        const operationUser = await userFindByToken(token)
+
+        if (!targetUser) {
             return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 });
+        }
+        // permissionがadminでない場合、URLに記載されているIDとトークンに含まれるIDが一致しているかを確認
+        if (operationUser.permission !== 'admin') {
+            if (operationUser.id !== targetUserId) {
+                return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 });
+            }
         }
 
         if (email !== undefined) {
@@ -30,32 +41,41 @@ export async function PUT(request: Request): Promise<NextResponse> {
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
                 return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
             }
-            user.email = trimmedEmail;
+            targetUser.email = trimmedEmail;
         }
 
         if (newPassword) {
             if (!oldPassword) {
                 return NextResponse.json({ error: 'Old password is required to set new password' }, { status: 400 });
             }
-            if (!(await user.comparePassword(oldPassword))) {
+            if (!(await targetUser.comparePassword(oldPassword))) {
                 return NextResponse.json({ error: 'Incorrect old password' }, { status: 400 });
             }
-            user.password = newPassword;
+            targetUser.password = newPassword;
         }
 
         if (nickname !== undefined) {
-            user.nickname = nickname;
+            targetUser.nickname = nickname;
         }
-
+    
         if (profileText !== undefined) {
-            user.profileText = profileText;
+            targetUser.profileText = profileText;
         }
 
         if (profilePicture !== undefined) {
-            user.profilePicture = profilePicture;
+            targetUser.profilePicture = profilePicture;
         }
 
-        await user.save();
+        if (permission !== undefined) {
+            if (operationUser.permission !== 'admin') {
+                return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 });
+            }
+            if (permission !== 'user' && permission !== 'admin') {
+                return NextResponse.json({ error: 'Invalid permission' }, { status: 400 });
+            }
+            targetUser.permission = permission;
+        }
+        await targetUser.save();
 
         return NextResponse.json({ message: 'User updated successfully' }, { status: 200 });
     } catch (error) {

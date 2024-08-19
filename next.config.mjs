@@ -1,5 +1,16 @@
 /** @type {import('next').NextConfig} */
 import dotenv from "dotenv"
+const environment = process.env.NODE_ENV || 'development';
+
+console.log(`environment: ${environment}`)
+
+if (environment === 'test') {
+    dotenv.config({ path: '.env.test.local' });
+} else if (environment === 'development') {
+    dotenv.config({ path: '.env.development.local' });
+} else if (environment === 'production') {
+    dotenv.config({ path: '.env.production.local' });
+}
 
 dotenv.config({ path: '.env.local'})
 
