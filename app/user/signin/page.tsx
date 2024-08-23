@@ -35,7 +35,7 @@ const StyledButton = styled.button`
   }
 `
 
-const Signup = () => {
+const Signin = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
@@ -43,7 +43,7 @@ const Signup = () => {
         event.preventDefault()
 
         try {
-            const response = await fetch('/api/user/signup', {
+            const response = await fetch('/api/user/signin', {
                 method: 'POST',
                 body: JSON.stringify({ email, password }),
             })
@@ -51,26 +51,28 @@ const Signup = () => {
             if (data.error) {
                 throw new Error(data.error)
             }
-            alert('新規登録が完了しました') 
+            // トークンをローカルストレージに保存
+            localStorage.setItem('token', data.token)
+            alert('ログインしました') 
             window.location.href = '/'
         } catch (error: any) {
             alert(`${error}`)
-            console.error('Error signing up:', error)
+            console.error('Error signing in:', error)
         }
     }
 
     return (
         <>
-            <h2>ユーザー登録</h2>
+            <h2>ログイン</h2>
             <form onSubmit={handleSubmit}>
                 <SignupContainer>
                     <StyledInput type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="メールアドレス" />
                     <StyledInput type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="パスワード" />
-                    <StyledButton type="submit">登録する</StyledButton>
+                    <StyledButton type="submit">ログイン</StyledButton>
                 </SignupContainer>
             </form>
         </>
     )
 }
 
-export default Signup
+export default Signin

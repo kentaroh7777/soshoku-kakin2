@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import mongoose from "mongoose"
 import connectDB from '../../../../utils/database'
 import { User, userFindByToken } from '../../../../model/user'
+import nextConfig from '../../../../../next.config.mjs'
+import jwt from "jsonwebtoken"
 
 
 export async function PUT(request: Request, context: {params: {id: string}}): Promise<NextResponse> {
@@ -17,14 +19,23 @@ export async function PUT(request: Request, context: {params: {id: string}}): Pr
             return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
         }
 
-        const { token, email, oldPassword, newPassword, nickname, profileText, profilePicture, permission } = body;
+        const { email, oldPassword, newPassword, nickname, profileText, profilePicture, permission } = body;
 
+        // middleware(auth)を通過してるので、headerにtokenは必ず存在する
+        const token = await request.headers.get("Authorization")?.split(" ")[1]
         if (!token) {
-            return NextResponse.json({ error: 'Token is required' }, { status: 401 });
+            return NextResponse.json({ error: 'Token is missing' }, { status: 401 });
         }
+        // const secretKey = new TextEncoder().encode(nextConfig.env.JWT_SECRET);
+        // const decodedJwt = await jwtVerify(token, secretKey, {algorithms: ['HS256']});
+
+        const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!)
+        const operationUserId = (decoded as jwt.JwtPayload).userId;
+
         // Verify token
         const targetUser = await User.findById(targetUserId)
-        const operationUser = await userFindByToken(token)
+        const operationUser = await User.findById(operationUserId)
+ 
 
         if (!targetUser) {
             return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 });

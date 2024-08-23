@@ -7,6 +7,7 @@ import { NextRequest } from 'next/server'
 import { PUT } from './route'
 import { POST } from '../../signin/route'
 import { User, userFindByToken } from '../../../../model/user'  // Userモデルをインポート
+import { middleware } from '../../../../../middleware'
 
 let mongod: MongoMemoryServer
 let token: string
@@ -32,7 +33,7 @@ describe('User Update API', () => {
         profileText: 'Initial profile',
         profilePicture: 'https://example.com/initial.jpg'
     })
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!)
+    const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!)
     const userId = (decoded as jwt.JwtPayload).userId
     context = {params: {id: userId}}
   })
@@ -48,11 +49,16 @@ describe('User Update API', () => {
     return data.token
   }
 
-  const createRequest = (body: any, targetUserId: string | null = null) => {
-    const decoded = jwt.verify(body.token, nextConfig.env.JWT_SECRET!)
+  const createRequest = (body: any, token: string, targetUserId: string | null = null) => {
+    const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!)
     const userId = targetUserId ? targetUserId : (decoded as jwt.JwtPayload).userId
     return new NextRequest(`http://localhost:3000/api/user/update/${userId}`, {
       method: 'PUT',
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify(body),
     })
   }
@@ -63,10 +69,13 @@ describe('User Update API', () => {
       email: 'test@example.com',
       profileText: 'Updated profile',
       profilePicture: 'https://example.com/updated.jpg',
-      token: token
+//      token: token
     }
 
-    const req = createRequest(updateData)
+    const req = createRequest(updateData, token)
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
+
     const res = await PUT(req, context)
 
     expect(res.status).toBe(200)
@@ -80,12 +89,39 @@ describe('User Update API', () => {
     expect(updatedUser?.profilePicture).toBe('https://example.com/updated.jpg')
   })
 
+  // ログインしない状態でのアクセステスト
+  it('should return 401 error when trying to update without logging in', async () => {
+    const updateData = {
+      email: 'test@example.com',
+      profileText: 'Updated profile without login',
+      profilePicture: 'https://example.com/updated.jpg'
+    }
+
+    const req = new NextRequest(`http://localhost:3000/api/user/update/${context.params.id}`, {
+      method: 'PUT',
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(updateData),
+    })
+
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(401)
+    const data = await auth_res.json()
+    expect(data.error).toBe('Token is missing')
+  })
+
   it('should return 401 error for non-existent user token', async () => {
     // delete the user
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!);
     await User.findByIdAndDelete((decoded as jwt.JwtPayload).userId);
 
-    const req = createRequest({ token: token, email: 'test@example.com', profileText: 'Deleted user test' })
+    const req = createRequest({ email: 'test@example.com', profileText: 'Deleted user test' }, token)
+
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
+
     const res = await PUT(req,context)
 
     expect(res.status).toBe(401)
@@ -94,7 +130,11 @@ describe('User Update API', () => {
   })
 
   it('should return 400 error for invalid email', async () => {
-    const req = createRequest({ token: token, email: 'invalid-email', profileText: 'Test' })
+    const req = createRequest({ email: 'invalid-email', profileText: 'Test' }, token)
+
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
+    
     const res = await PUT(req,context)
 
     expect(res.status).toBe(400)
@@ -103,7 +143,11 @@ describe('User Update API', () => {
   })
 
   it('should return 400 error for empty email', async () => {
-    const req = createRequest({ token: token, email: '', profileText: 'Test' })
+    const req = createRequest({ email: '', profileText: 'Test' }, token)
+
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
+
     const res = await PUT(req,context)
 
     expect(res.status).toBe(400)
@@ -113,14 +157,17 @@ describe('User Update API', () => {
 
   it('should update password when old password matches', async () => {
     const updateData = {
-        token: token,
         email: 'test@example.com',
         oldPassword: 'password123',
         newPassword: 'newpassword456',
         profileText: 'Updated profile'
     }
 
-    const req = createRequest(updateData)
+    const req = createRequest(updateData, token)
+
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
+
     const res = await PUT(req,context)
 
     expect(res.status).toBe(200)
@@ -138,14 +185,17 @@ describe('User Update API', () => {
 
   it('should not update password when old password does not match', async () => {
     const updateData = {
-        token: token,
         email: 'test@example.com',
         oldPassword: 'wrongpassword',
         newPassword: 'newpassword456',
         profileText: 'Updated profile'
     }
 
-    const req = createRequest(updateData)
+    const req = createRequest(updateData, token)
+
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
+
     const res = await PUT(req,context)
 
     // should return 400 error
@@ -162,12 +212,15 @@ describe('User Update API', () => {
 
   it('should not allow non-admin user to update permission', async () => {
     const updateData = {
-        token: token,
         permission: 'admin',
         profileText: 'Updated profile'
     }
 
-    const req = createRequest(updateData)
+    const req = createRequest(updateData, token)
+
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
+
     const res = await PUT(req, context)
 
     // should return 401 error
@@ -192,13 +245,16 @@ describe('User Update API', () => {
 
     // Update data by the first regular user
     const updateData = {
-      token: token,
       email: 'updatedsecond@example.com',
       profileText: 'User updated profile',
       permission: 'admin'
     }
-    const req = createRequest(updateData, secondUser._id.toString())
+    const req = createRequest(updateData, token, secondUser._id.toString())
     const context = { params: { id: secondUser._id.toString() } }
+
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
+    
     const res = await PUT(req, context)
 
     // should return 401 error
@@ -236,13 +292,16 @@ describe('User Update API', () => {
 
     // Update data by admin
     const updateData = {
-      token: adminToken,
       email: 'updated@example.com',
       profileText: 'Admin updated profile',
       permission: 'admin'
     }
-    const req = createRequest(updateData,regularUser._id.toString())
+    const req = createRequest(updateData, adminToken, regularUser._id.toString())
     const context = { params: { id: regularUser._id.toString() } }
+
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
+    
     const res = await PUT(req, context)
 
 

@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
       message: 'invalid password. Only alphabet, number, and symbols are allowed.'
     },
     minlength: 8,
-    maxlength: 1024
+    maxlength: 64
   },
   nickname: {
     type: String,

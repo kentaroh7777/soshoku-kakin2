@@ -21,7 +21,8 @@
     "next": "14.2.5",
     "next-auth": "^4.24.7",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "styled-components": "^6.1.12"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -41,11 +42,11 @@
     "@types/react-dom": "^18",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8",
-    "eslint-config-next": "14.2.5",
+    "eslint-config-next": "^0.2.4",
     "eslint-config-prettier": "^9.1.0",
     "husky": "^9.1.4",
     "jsdom": "^24.1.1",
-    "lint-staged": "^15.2.8",
+    "lint-staged": "^6.1.1",
     "node-mocks-http": "^1.15.1",
     "prettier": "^3.3.3",
     "typescript": "^5",

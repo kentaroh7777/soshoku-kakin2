@@ -1,17 +1,19 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
+import { Types } from 'mongoose'
 import jwt from 'jsonwebtoken'
 import nextConfig from '../../../../../next.config.mjs'
 import { NextRequest } from 'next/server'
 import { DELETE } from './route'
 import { POST } from '../../signin/route'
 import { User } from '../../../../model/user'
+import { middleware } from '../../../../../middleware'
 
 let mongod: MongoMemoryServer
 let token: string
 let context: {params: {id: string}}
-let testUser: typeof User
+let testUser: InstanceType<typeof User>
 
 
 describe('User Delete API', () => {
@@ -34,7 +36,7 @@ describe('User Delete API', () => {
         profileText: 'Initial profile',
         profilePicture: 'https://example.com/initial.jpg'
     })
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!)
+    const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!)
     const userId = (decoded as jwt.JwtPayload).userId
     context = {params: {id: userId}}
   })
@@ -50,17 +52,25 @@ describe('User Delete API', () => {
     return data.token
   }
 
-  const createRequest = (body: any, targetUserId: string | null = null) => {
-    const decoded = jwt.verify(body.token, nextConfig.env.JWT_SECRET!)
+  const createRequest = (body: any, token: string, targetUserId: string | null = null) => {
+    const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!)
     const userId = targetUserId ? targetUserId : (decoded as jwt.JwtPayload).userId
-    return new NextRequest(`http://localhost:3000/api/user/update/${userId}`, {
+    return new NextRequest(`http://localhost:3000/api/user/delete/${userId}`, {
       method: 'DELETE',
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify(body),
     })
   }
 
   it('should successfully delete a user', async () => {
-    const req = createRequest({ token: token, email: 'test@example.com' })
+    const req = createRequest({ email: 'test@example.com' },token)
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
+
     const res = await DELETE(req, context)
 
     expect(res.status).toBe(200)
@@ -76,8 +86,16 @@ describe('User Delete API', () => {
     const userId = (decoded as jwt.JwtPayload).userId
     const req = new NextRequest(`http://localhost:3000/api/user/delete/${userId}`, {
       method: 'DELETE',
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: 'invalid json',
     })
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
+
     const res = await DELETE(req, context)
 
     expect(res.status).toBe(400)
@@ -87,7 +105,10 @@ describe('User Delete API', () => {
 
   it('should return 404 error for non-existent ID', async () => {
     const tokenForNonExistentUser = jwt.sign({ userId: '123456789012345678901234' }, nextConfig.env.JWT_SECRET!)
-    const req = createRequest({ token: tokenForNonExistentUser, email: 'nonexistent@example.com'}, 'nonexistentID' )
+    const req = createRequest({ email: 'nonexistent@example.com'}, tokenForNonExistentUser, 'nonexistentID' )
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
+
     const res = await DELETE(req, {params: {id: '123456789012345678901234'}})
 
     expect(res.status).toBe(401)
@@ -106,7 +127,9 @@ describe('User Delete API', () => {
     await test2User.save()
 
     // Create a request with test2 user target id
-    const req = createRequest({ token: token}, test2User._id.toString())
+    const req = createRequest({}, token, test2User._id.toString())
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
     const res = await DELETE(req, { params: { id: test2User._id.toString() } })
 
     expect(res.status).toBe(401)
@@ -125,7 +148,9 @@ describe('User Delete API', () => {
     // Generate token for admin user
     const adminToken = jwt.sign({ userId: adminUser._id }, nextConfig.env.JWT_SECRET!)
 
-    const req = createRequest({ token: adminToken }, testUser._id.toString())
+    const req = createRequest({}, adminToken, testUser._id.toString())
+    const auth_res = await middleware(req)
+    expect(auth_res.status).toBe(200)
     const res = await DELETE(req, { params: { id: testUser._id.toString() } })
     expect(res.status).toBe(200)
   })
