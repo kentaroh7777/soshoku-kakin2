@@ -15,10 +15,18 @@ if (environment === 'test') {
 dotenv.config({ path: '.env.local'})
 
 const nextConfig = {
+
+    reactStrictMode: true,
+
     env: {
         MONGODB_URI: process.env.MONGODB_URI,
         JWT_SECRET: process.env.JWT_SECRET
-    }
+    },
 };
+
+export const JWT_SECRET = () => {
+//    return nextConfig.env.JWT_SECRET
+    return "user-manager-secret"
+}
 
 export default nextConfig;

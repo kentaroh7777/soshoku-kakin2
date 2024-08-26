@@ -5,10 +5,11 @@ import { NextRequest } from 'next/server'
 import { POST } from './route'
 import { User } from '../../../model/user'
 import connectDB from '../../../utils/database'
+import { PayloadFromTokenServer } from '../../../utils/useAuth'
 
 let mongod: MongoMemoryServer
 
-describe('User Signin API', () => {
+describe('User Login API', () => {
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
     const uri = mongod.getUri()
@@ -25,7 +26,7 @@ describe('User Signin API', () => {
   })
 
   const createRequest = (body: any) => {
-    return new NextRequest('http://localhost:3000/api/user/signin', {
+    return new NextRequest('http://localhost:3000/api/user/login', {
       method: 'POST',
       body: JSON.stringify(body),
     })
@@ -45,13 +46,17 @@ describe('User Signin API', () => {
 
     expect(res.status).toBe(200)
     const data = await res.json()
-    expect(data.message).toBe('User signed in successfully')
+    expect(data.message).toBe('User logged in successfully')
     expect(data).toHaveProperty('token')
-    console.log(data);
+
+    // トークンからペイロードを取得してチェック
+    const payload = await PayloadFromTokenServer(data.token)
+    expect(payload.userId).toBe(testUser._id.toString())
+    expect(payload.permission).toBe(testUser.permission)
   })
 
   it('should return 400 error for invalid request body', async () => {
-    const req = new NextRequest('http://localhost:3000/api/user/signin', {
+    const req = new NextRequest('http://localhost:3000/api/user/login', {
       method: 'POST',
       body: 'invalid json',
     })

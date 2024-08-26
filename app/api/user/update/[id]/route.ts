@@ -3,6 +3,7 @@ import mongoose from "mongoose"
 import connectDB from '../../../../utils/database'
 import { User, userFindByToken } from '../../../../model/user'
 import nextConfig from '../../../../../next.config.mjs'
+import { JWT_SECRET } from '../../../../../next.config.mjs'
 import jwt from "jsonwebtoken"
 
 
@@ -21,15 +22,14 @@ export async function PUT(request: Request, context: {params: {id: string}}): Pr
 
         const { email, oldPassword, newPassword, nickname, profileText, profilePicture, permission } = body;
 
-        // middleware(auth)を通過してるので、headerにtokenは必ず存在する
+        // middlewareは信用できない…
         const token = await request.headers.get("Authorization")?.split(" ")[1]
         if (!token) {
             return NextResponse.json({ error: 'Token is missing' }, { status: 401 });
         }
-        // const secretKey = new TextEncoder().encode(nextConfig.env.JWT_SECRET);
-        // const decodedJwt = await jwtVerify(token, secretKey, {algorithms: ['HS256']});
-
-        const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!)
+        const decoded = jwt.verify(token, JWT_SECRET())
+//        const decoded = jwt.verify(token, process.env.JWT_SECRET!)
+//        const decoded = jwt.verify(token, "user manager secret")
         const operationUserId = (decoded as jwt.JwtPayload).userId;
 
         // Verify token
@@ -38,12 +38,12 @@ export async function PUT(request: Request, context: {params: {id: string}}): Pr
  
 
         if (!targetUser) {
-            return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 });
+            return NextResponse.json({ error: 'Target user not found' }, { status: 401 });
         }
         // permissionがadminでない場合、URLに記載されているIDとトークンに含まれるIDが一致しているかを確認
         if (operationUser.permission !== 'admin') {
             if (operationUser.id !== targetUserId) {
-                return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 });
+                return NextResponse.json({ error: 'Unauthorized request for not target user.' }, { status: 401 });
             }
         }
 
@@ -77,9 +77,9 @@ export async function PUT(request: Request, context: {params: {id: string}}): Pr
             targetUser.profilePicture = profilePicture;
         }
 
-        if (permission !== undefined) {
+        if (permission !== undefined && targetUser.permission !== permission ) {
             if (operationUser.permission !== 'admin') {
-                return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 });
+                return NextResponse.json({ error: 'Unauthorized permission change request for not admin user.' }, { status: 401 });
             }
             if (permission !== 'user' && permission !== 'admin') {
                 return NextResponse.json({ error: 'Invalid permission' }, { status: 400 });

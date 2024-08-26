@@ -4,9 +4,10 @@ import mongoose from 'mongoose'
 import { Types } from 'mongoose'
 import jwt from 'jsonwebtoken'
 import nextConfig from '../../../../../next.config.mjs'
+import { JWT_SECRET } from '../../../../../next.config.mjs'
 import { NextRequest } from 'next/server'
 import { DELETE } from './route'
-import { POST } from '../../signin/route'
+import { POST } from '../../login/route'
 import { User } from '../../../../model/user'
 import { middleware } from '../../../../../middleware'
 
@@ -30,20 +31,20 @@ describe('User Delete API', () => {
 
   beforeEach(async () => {
     await User.deleteMany({})
-    token = await createUserAndSignin({
+    token = await createUserAndLogin({
         email: 'test@example.com',
         password: 'password123',
         profileText: 'Initial profile',
         profilePicture: 'https://example.com/initial.jpg'
     })
-    const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!)
+    const decoded = jwt.verify(token, JWT_SECRET())
     const userId = (decoded as jwt.JwtPayload).userId
     context = {params: {id: userId}}
   })
   
-  const createUserAndSignin = async (body: any) => {
+  const createUserAndLogin = async (body: any) => {
     testUser = await User.create(body)
-    const req = new NextRequest('http://localhost:3000/api/user/signin', {
+    const req = new NextRequest('http://localhost:3000/api/user/login', {
       method: 'POST',
       body: JSON.stringify({ email: body.email, password: body.password }),
     })
@@ -53,7 +54,7 @@ describe('User Delete API', () => {
   }
 
   const createRequest = (body: any, token: string, targetUserId: string | null = null) => {
-    const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!)
+    const decoded = jwt.verify(token, JWT_SECRET())
     const userId = targetUserId ? targetUserId : (decoded as jwt.JwtPayload).userId
     return new NextRequest(`http://localhost:3000/api/user/delete/${userId}`, {
       method: 'DELETE',
@@ -82,7 +83,7 @@ describe('User Delete API', () => {
   })
 
   it('should return 400 error for invalid request body', async () => {
-    const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!)
+    const decoded = jwt.verify(token, JWT_SECRET())
     const userId = (decoded as jwt.JwtPayload).userId
     const req = new NextRequest(`http://localhost:3000/api/user/delete/${userId}`, {
       method: 'DELETE',
@@ -146,7 +147,7 @@ describe('User Delete API', () => {
     })
     await adminUser.save()
     // Generate token for admin user
-    const adminToken = jwt.sign({ userId: adminUser._id }, nextConfig.env.JWT_SECRET!)
+    const adminToken = jwt.sign({ userId: adminUser._id }, JWT_SECRET())
 
     const req = createRequest({}, adminToken, testUser._id.toString())
     const auth_res = await middleware(req)

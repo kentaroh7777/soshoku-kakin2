@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { User, userFindByToken } from '../../../../model/user';
 import connectDB from '../../../../utils/database';
 import nextConfig from '../../../../../next.config.mjs'
+import { JWT_SECRET } from '../../../../../next.config.mjs'
 import jwt from "jsonwebtoken"
 
 export async function DELETE(request: Request, context: {params: {id: string}}): Promise<NextResponse> {
@@ -24,7 +25,7 @@ export async function DELETE(request: Request, context: {params: {id: string}}):
     if (!token) {
         return NextResponse.json({ error: 'Token is missing' }, { status: 401 });
     }
-    const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!)
+    const decoded = jwt.verify(token, JWT_SECRET())
     const operationUserId = (decoded as jwt.JwtPayload).userId;
 
     // Verify token

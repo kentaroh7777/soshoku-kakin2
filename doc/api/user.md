@@ -6,7 +6,7 @@
 ### api/user/signup
 emailとpasswordでユーザー作成。誰でも出来る。
 
-### api/user/signin
+### api/user/login
 emailとpasswordを照合する。一致するユーザーが存在した場合、当該ユーザーのIDを含むトークンを返す。以後このトークンを利用してログイン状態を実現できる。ログアウトする場合はトークンを破棄する。
 
 ### api/user/read
@@ -44,7 +44,7 @@ stateDiagram-v2
     s2 : ログアウト(閲覧者)
     s3 : ログイン(update可能)
     s1 --> s2 : signup(ユーザー作成)
-    s2 --> s3 : signin(トークン発行)
+    s2 --> s3 : login(トークン発行)
     s3 --> s2 : トークン破棄
     s3 --> s1 : delete(ユーザー削除)
 ```
@@ -56,7 +56,7 @@ stateDiagram-v2
     direction LR
     s1 : ページA(未ログイン)
     s2 : ユーザー登録ページ(/user/signup)
-    s3 : ログインページ(/user/signin)
+    s3 : ログインページ(/user/login)
     s4 : 直前のページ(ログイン済)
     s5 : ユーザー編集ページ(/user/update)
     s6 : TOPページ(未ログイン)

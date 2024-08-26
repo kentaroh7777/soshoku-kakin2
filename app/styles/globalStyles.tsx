@@ -14,7 +14,6 @@ const GlobalStyle = createGlobalStyle`
     background-color: #f5f5f5;
     color: #333;
     line-height: 1.6;
-    padding: 2rem;
   }
 
   a {

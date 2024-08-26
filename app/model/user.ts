@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import { JWT_SECRET } from '../../next.config.mjs'
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -68,7 +69,7 @@ userSchema.methods.comparePassword = async function(candidatePassword: string) {
 }
 
 export const userFindByToken = async function(token: string) {
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as jwt.JwtPayload;
+  const decoded = jwt.verify(token, JWT_SECRET()) as jwt.JwtPayload;
   if (!decoded) {
     return null;
   } else {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { User } from '../../../model/user';
 import connectDB from '../../../utils/database';
 import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../../../../next.config.mjs'
 
 export async function POST(req: NextRequest) {
   let body;
@@ -31,11 +32,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: '1d' });
+    const token = jwt.sign({ userId: user._id, permission: user.permission }, JWT_SECRET(), { expiresIn: '1d' });
 
-    return NextResponse.json({ message: 'User signed in successfully', token }, { status: 200 });
+    return NextResponse.json({ message: 'User logged in successfully', token }, { status: 200 });
   } catch (error) {
-    console.error('Signin error:', error);
+    console.error('Login error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

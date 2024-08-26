@@ -2,10 +2,9 @@
 import { useState } from 'react'
 import styled from 'styled-components'
 import { StyledInput, StyledButton, SignContainer } from '../../styles/standardComponents'
-import { useRouter } from 'next/navigation'
 
-const Signup = () => {
-    const router = useRouter()
+
+const Login = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
@@ -13,7 +12,7 @@ const Signup = () => {
         event.preventDefault()
 
         try {
-            const response = await fetch('/api/user/signup', {
+            const response = await fetch('/api/user/login', {
                 method: 'POST',
                 body: JSON.stringify({ email, password }),
             })
@@ -21,8 +20,10 @@ const Signup = () => {
             if (data.error) {
                 throw new Error(data.error)
             }
-            alert('新規登録が完了しました') 
-            router.push('/user/login')
+            // トークンをローカルストレージに保存
+            localStorage.setItem('token', data.token)
+            alert('ログインしました') 
+            window.location.href = '/'
         } catch (error: any) {
             alert(`${error}`)
             console.error('Error logging in:', error)
@@ -31,16 +32,16 @@ const Signup = () => {
 
     return (
         <>
-            <h2>ユーザー登録</h2>
+            <h2>ログイン</h2>
             <form onSubmit={handleSubmit}>
                 <div className="sign-container">
                     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="メールアドレス" />
                     <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="パスワード" />
-                    <button type="submit">登録する</button>
+                    <button type="submit">ログイン</button>
                 </div>
             </form>
         </>
     )
 }
 
-export default Signup
+export default Login

@@ -3,9 +3,10 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
 import jwt from 'jsonwebtoken'
 import nextConfig from '../../../../../next.config.mjs'
+import { JWT_SECRET } from '../../../../../next.config.mjs'
 import { NextRequest } from 'next/server'
 import { PUT } from './route'
-import { POST } from '../../signin/route'
+import { POST } from '../../login/route'
 import { User, userFindByToken } from '../../../../model/user'  // Userモデルをインポート
 import { middleware } from '../../../../../middleware'
 
@@ -27,20 +28,20 @@ describe('User Update API', () => {
 
   beforeEach(async () => {
     await User.deleteMany({})
-    token = await createUserAndSignin({
+    token = await createUserAndLogin({
         email: 'test@example.com',
         password: 'password123',
         profileText: 'Initial profile',
         profilePicture: 'https://example.com/initial.jpg'
     })
-    const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!)
+    const decoded = jwt.verify(token, JWT_SECRET())
     const userId = (decoded as jwt.JwtPayload).userId
     context = {params: {id: userId}}
   })
 
-  const createUserAndSignin = async (body: any) => {
+  const createUserAndLogin = async (body: any) => {
     const testUser = await User.create(body)
-    const req = new NextRequest('http://localhost:3000/api/user/signin', {
+    const req = new NextRequest('http://localhost:3000/api/user/login', {
       method: 'POST',
       body: JSON.stringify({ email: body.email, password: body.password }),
     })
@@ -50,7 +51,7 @@ describe('User Update API', () => {
   }
 
   const createRequest = (body: any, token: string, targetUserId: string | null = null) => {
-    const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!)
+    const decoded = jwt.verify(token, JWT_SECRET())
     const userId = targetUserId ? targetUserId : (decoded as jwt.JwtPayload).userId
     return new NextRequest(`http://localhost:3000/api/user/update/${userId}`, {
       method: 'PUT',
@@ -63,7 +64,7 @@ describe('User Update API', () => {
     })
   }
 
-  // create -> signin -> update
+  // create -> login -> update
   it('should correctly update user information', async () => {
     const updateData = {
       email: 'test@example.com',
@@ -114,7 +115,7 @@ describe('User Update API', () => {
 
   it('should return 401 error for non-existent user token', async () => {
     // delete the user
-    const decoded = jwt.verify(token, nextConfig.env.JWT_SECRET!);
+    const decoded = jwt.verify(token, JWT_SECRET());
     await User.findByIdAndDelete((decoded as jwt.JwtPayload).userId);
 
     const req = createRequest({ email: 'test@example.com', profileText: 'Deleted user test' }, token)
@@ -126,7 +127,7 @@ describe('User Update API', () => {
 
     expect(res.status).toBe(401)
     const data = await res.json()
-    expect(data.error).toBe('Unauthorized request')
+    expect(data.error).toBe('Target user not found')
   })
 
   it('should return 400 error for invalid email', async () => {
@@ -226,7 +227,7 @@ describe('User Update API', () => {
     // should return 401 error
     expect(res.status).toBe(401)
     const data = await res.json()
-    expect(data.error).toBe('Unauthorized request')
+    expect(data.error).toBe('Unauthorized permission change request for not admin user.')
     
     // permission should not be updated
     const updatedUser = await userFindByToken(token)
@@ -260,7 +261,7 @@ describe('User Update API', () => {
     // should return 401 error
     expect(res.status).toBe(401)
     const data = await res.json()
-    expect(data.error).toBe('Unauthorized request')
+    expect(data.error).toBe('Unauthorized request for not target user.')
 
     // second user's data should not be updated
     const updatedUser = await User.findById(secondUser._id)
@@ -280,7 +281,7 @@ describe('User Update API', () => {
     await adminUser.save()
 
     // Generate token for admin user
-    const adminToken = jwt.sign({ userId: adminUser._id }, nextConfig.env.JWT_SECRET!)
+    const adminToken = jwt.sign({ userId: adminUser._id }, JWT_SECRET())
 
     // Create a regular user
     const regularUser = new User({
