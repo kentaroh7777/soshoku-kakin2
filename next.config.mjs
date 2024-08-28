@@ -25,8 +25,7 @@ const nextConfig = {
 };
 
 export const JWT_SECRET = () => {
-//    return nextConfig.env.JWT_SECRET
-    return "user-manager-secret"
+    return nextConfig.env.JWT_SECRET || "jwt-secret-default";
 }
 
 export default nextConfig;
