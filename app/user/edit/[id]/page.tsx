@@ -45,7 +45,7 @@ const UserEdit = (context: { params: { id: string } }) => {
                 if (data.error) {
                     throw new Error(data.error)
                 }
-                setUser(data.user)
+                setUser({...data.user, oldPassword: "", newPassword: ""})
             } catch (error: any) {
                 setError(error.message)
             }
@@ -84,7 +84,11 @@ const UserEdit = (context: { params: { id: string } }) => {
                 body: JSON.stringify(user)
             })
             const jsonData = await response.json()
-            alert("ユーザー情報を更新しました。")
+            if (jsonData.error === undefined) {
+                alert("ユーザー情報を更新しました。")
+            } else {
+                alert(`更新できませんでした。${jsonData.error}`)
+            }
             router.push(`/user/profile/${targetId}`)
         }catch(error){
             alert(`エラーが発生しました。${error}`)
@@ -113,6 +117,14 @@ const UserEdit = (context: { params: { id: string } }) => {
                     <div className="sign-element-container">
                         <h3 className="sign-head-text">プロフィールテキスト</h3>
                         <input type="text" name="profileText" value={user.profileText} onChange={handleChange} placeholder="プロフィールテキスト" />
+                    </div>
+                    <div className="sign-element-container">
+                        <h3 className="sign-head-text">旧パスワード（変更希望時のみ）</h3>
+                        <input type="password" name="oldPassword" value={user.oldPassword} onChange={handleChange} placeholder="旧パスワード" />
+                    </div>
+                    <div className="sign-element-container">
+                        <h3 className="sign-head-text">新パスワード（変更希望時のみ）</h3>
+                        <input type="password" name="newPassword" value={user.newPassword} onChange={handleChange} placeholder="新パスワード" />
                     </div>
                     <button type="submit">更新</button>
                 </div>

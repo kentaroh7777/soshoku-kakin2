@@ -88,7 +88,8 @@ export async function PUT(request: Request, context: {params: {id: string}}): Pr
         }
         await targetUser.save();
 
-        return NextResponse.json({ message: 'User updated successfully' }, { status: 200 });
+        const response = await NextResponse.json({ message: 'User updated successfully' }, { status: 200 });
+        return response;
     } catch (error) {
         if (error instanceof mongoose.Error.ValidationError) {
             console.error('User update validation error:', error);
