@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import { StyledInput, SignContainer, StyledButton } from '../../../styles/standardComponents'
 import styled from 'styled-components'
 import useAuth from '../../../utils/useAuth'
-import { PayloadFromTokenClient } from '../../../utils/useAuth'
 import { useRouter } from 'next/navigation'
 
 const StyledHeadText = styled.h3`

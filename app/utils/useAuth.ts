@@ -1,26 +1,20 @@
 "use client"
 import {useState, useEffect} from "react"
 import {useRouter} from "next/navigation"
-import jwt from "jsonwebtoken"
-import { jwtVerify } from "jose"
-import nextConfig from "../../next.config.mjs"
-import { JWT_SECRET } from "../../next.config.mjs"
 
-export const PayloadFromTokenServer = async (token: string) => {
-    // サーバーサイドの処理
-    try{
-        const decoded = jwt.verify(token, JWT_SECRET()) as jwt.JwtPayload;
-        return decoded;
-    }catch(err){
-        return null
-    }
-}
-export const PayloadFromTokenClient = async (token: string) => {
+export const GetPayload = async (token: string) => {
     // クライアントサイドの処理
     try{
-        const secret = new TextEncoder().encode(JWT_SECRET())
-        const decoded = await jwtVerify(token, secret)
-        return decoded.payload
+        const res = await fetch("/api/user/payload", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        })
+        const data = await res.json()
+        return data
     }catch(err){
         return null
     }
@@ -39,10 +33,8 @@ export const loginUserID = (): string =>{
             }
         
             try{
-                // ClientではjwtVerifyを使用しないとうまくいかない？
-                const secret = new TextEncoder().encode(JWT_SECRET())
-                const decoded = await jwtVerify(token, secret)
-                setUserID(decoded.payload.userId as string)
+                const data = await GetPayload(token)
+                await setUserID(data.userId as string)
             }catch(err){
                 return ""
             }    
@@ -71,11 +63,9 @@ const useAuth = (): {id: string, permission: string} => {
             }
         
             try{
-                // ClientではjwtVerifyを使用しないとうまくいかない？
-                const secret = new TextEncoder().encode(JWT_SECRET())
-                const decoded = await jwtVerify(token, secret)
-                setLoginUserID(decoded.payload.userId as string)
-                setLoginUserPermission(decoded.payload.permission as string)
+                const data = await GetPayload(token)
+                setLoginUserID(data.userId as string)
+                setLoginUserPermission(data.permission as string)
             }catch(err){
                 console.log("useAuth(): verification error")
                 router.push("/user/login")

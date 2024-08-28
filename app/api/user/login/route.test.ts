@@ -5,7 +5,9 @@ import { NextRequest } from 'next/server'
 import { POST } from './route'
 import { User } from '../../../model/user'
 import connectDB from '../../../utils/database'
-import { PayloadFromTokenServer } from '../../../utils/useAuth'
+import { GetPayload } from '../../../utils/useAuth'
+import jwt from "jsonwebtoken"
+import { JWT_SECRET } from '../../../../next.config.mjs'
 
 let mongod: MongoMemoryServer
 
@@ -50,7 +52,7 @@ describe('User Login API', () => {
     expect(data).toHaveProperty('token')
 
     // トークンからペイロードを取得してチェック
-    const payload = await PayloadFromTokenServer(data.token)
+    const payload = jwt.verify(data.token, JWT_SECRET()) as jwt.JwtPayload
     expect(payload.userId).toBe(testUser._id.toString())
     expect(payload.permission).toBe(testUser.permission)
   })

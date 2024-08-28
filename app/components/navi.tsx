@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { FaUserPlus, FaUser } from "react-icons/fa"
-import { RiLoginBoxLine, RiLogoutBoxRLine, RiUserEditLine } from "react-icons/ri"
+import { RiLoginBoxLine, RiLogoutBoxRLine } from "react-icons/ri"
 import { FaTimesCircle } from "react-icons/fa"
 import { loginUserID } from '../utils/useAuth'
 

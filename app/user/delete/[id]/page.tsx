@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import { StyledInput, SignContainer, StyledButton } from '../../../styles/standardComponents'
 import styled from 'styled-components'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import useAuth from '../../../utils/useAuth'
 
 const StyledHeadText = styled.h3`
@@ -22,7 +21,6 @@ const StyledElementContainer = styled.div`
 
 
 const UserDelete = (context: { params: { id: string } }) => {
-    const router = useRouter()
     const [user, setUser] = useState<any>(null)
     const [error, setError] = useState<string | null>(null)
     const { id } = context.params
@@ -72,8 +70,9 @@ const UserDelete = (context: { params: { id: string } }) => {
                     body: JSON.stringify(user)
                 })
                 const jsonData = await response.json()
+                localStorage.removeItem("token")
                 alert("ユーザーを削除しました")
-                router.push(`/`)
+                window.location.href = "/"
             }catch(error){
                 alert(`エラーが発生しました。${error}`)
             }

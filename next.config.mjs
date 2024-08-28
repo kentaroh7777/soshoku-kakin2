@@ -2,7 +2,7 @@
 import dotenv from "dotenv"
 const environment = process.env.NODE_ENV || 'development';
 
-console.log(`environment: ${environment}`)
+//console.log(`environment: ${environment}`)
 
 if (environment === 'test') {
     dotenv.config({ path: '.env.test.local' });
