@@ -38,7 +38,7 @@ const UserEdit = (context: { params: { id: string } }) => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/api/user/read/${targetId}`, {cache: 'no-cache'})
+                const response = await fetch(`/api/user/read/${targetId}`, {cache: 'no-cache'})
                 const data = await response.json()
                 if (data.error) {
                     throw new Error(data.error)

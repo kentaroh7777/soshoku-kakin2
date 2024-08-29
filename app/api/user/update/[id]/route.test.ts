@@ -41,7 +41,7 @@ describe('User Update API', () => {
 
   const createUserAndLogin = async (body: any) => {
     const testUser = await User.create(body)
-    const req = new NextRequest('http://localhost:3000/api/user/login', {
+    const req = new NextRequest('/api/user/login', {
       method: 'POST',
       body: JSON.stringify({ email: body.email, password: body.password }),
     })
@@ -53,7 +53,7 @@ describe('User Update API', () => {
   const createRequest = (body: any, token: string, targetUserId: string | null = null) => {
     const decoded = jwt.verify(token, JWT_SECRET())
     const userId = targetUserId ? targetUserId : (decoded as jwt.JwtPayload).userId
-    return new NextRequest(`http://localhost:3000/api/user/update/${userId}`, {
+    return new NextRequest(`/api/user/update/${userId}`, {
       method: 'PUT',
       headers: {
         "Accept": "application/json",
@@ -98,7 +98,7 @@ describe('User Update API', () => {
       profilePicture: 'https://example.com/updated.jpg'
     }
 
-    const req = new NextRequest(`http://localhost:3000/api/user/update/${context.params.id}`, {
+    const req = new NextRequest(`/api/user/update/${context.params.id}`, {
       method: 'PUT',
       headers: {
         "Accept": "application/json",
