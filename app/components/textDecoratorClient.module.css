@@ -1,0 +1,160 @@
+
+.container {
+  font-family: 'Arial', sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.title {
+  background-color: #444;
+  color: white;
+  width: 100%;
+  font-family: 'Rounded M+ 1c', sans-serif;
+  font-size: 50px;
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 20px 0;
+  border-radius: 10px;
+}
+
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.input {
+  font-size: 1.5rem;
+  min-height: 5rem;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.output {
+  min-height: 5rem;
+  white-space: pre-wrap;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+}
+.copied {
+  margin-bottom: 10px;
+  color: #007000;
+  text-align: center;
+}
+.banner {
+  margin-bottom: 20px;
+}
+
+
+.carouselContainer {
+  margin: 40px 0;
+  padding: 0 40px;
+}
+.premiumContainer {
+  font-family: 'Arial', sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  margin: 20px 0 40px 0;
+  padding: 1rem 1rem;
+  background-color: #f0f0a0;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.slide, .favoCard {
+  cursor: pointer;
+  background: white;
+  border-radius: 8px;
+  height: 100px;
+  padding: 20px 0px;
+  margin: 0 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* お気に入りボタン */
+.favoContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.favoHeader {
+  margin-top: 50px;
+}
+.favoCard {
+  margin-bottom: 20px;
+  width: 45%;
+}
+.favoButtonContainer {
+  display: flex;
+  justify-content: right;
+  align-items: right;
+}
+.favoButton {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  box-sizing: border-box;
+  font-size: 1.0rem;
+
+  &:hover {
+    background-color: #45a049;
+  }
+}
+
+/* .customArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  background-color: #aaa;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1;
+}
+  */
+.prevArrow {
+  left: 20px;
+}
+
+.nextArrow {
+  right: 20px;
+}
+  
+  /* .customArrow::before {
+    content: '←';
+    width: 30px;
+    height: 30px;
+    border-top: 2px solid white;
+    border-right: 2px solid white;
+    transform: rotate(45deg);
+  }
+   */
+.prevArrow::before {
+    transform: rotate(-135deg);
+    color: #333;
+}
+.nextArrow::before {
+    transform: rotate(45deg);
+    color: #333;
+}
+
+@media (min-width: 700px) {
+  .favoCard { 
+    width: 30%;
+  }
+}

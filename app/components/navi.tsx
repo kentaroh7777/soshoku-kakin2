@@ -7,6 +7,7 @@ import { loginUserID } from '../utils/useAuth'
 
 const Navi = () => {
     const userID = loginUserID()
+//    const userID = ""
     if (userID === ""){
         return(
             <nav>

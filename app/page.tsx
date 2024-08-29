@@ -1,8 +1,12 @@
+import TextDecoratorClient from './components/textDecoratorClient'
+import Footer from './components/footer'
+
 const Home = () => {
   return(
-    <>
-    <h1>ホーム</h1>
-    </>
+    <main>
+      <TextDecoratorClient />
+      <Footer />
+    </main>
   )
 }
 

@@ -1,7 +1,5 @@
 "use client"
 import { useState } from 'react'
-import styled from 'styled-components'
-import { StyledInput, StyledButton, SignContainer } from '../../styles/standardComponents'
 import { useRouter } from 'next/navigation'
 
 const Signup = () => {
@@ -33,10 +31,10 @@ const Signup = () => {
         <>
             <h2>ユーザー登録</h2>
             <form onSubmit={handleSubmit}>
-                <div className="sign-container">
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="メールアドレス" />
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="パスワード" />
-                    <button type="submit">登録する</button>
+                <div className="user-container">
+                    <input className="user-input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="メールアドレス" />
+                    <input className="user-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="パスワード" />
+                    <button className="user-button" type="submit">登録する</button>
                 </div>
             </form>
         </>

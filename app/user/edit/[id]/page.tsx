@@ -1,6 +1,5 @@
 "use client"
 import { useEffect, useState } from 'react'
-import { StyledInput, SignContainer, StyledButton } from '../../../styles/standardComponents'
 import styled from 'styled-components'
 import useAuth from '../../../utils/useAuth'
 import { useRouter } from 'next/navigation'
@@ -100,32 +99,32 @@ const UserEdit = (context: { params: { id: string } }) => {
                 <h2>ユーザープロフィール編集</h2>
 
                 <form onSubmit={handleSubmit}>
-                <div className="sign-container">
-                    <div className="sign-element-container">
-                        <h3 className="sign-head-text">プロフィール画像</h3>
+                <div className="user-container">
+                    <div className="user-element-container">
+                        <h3 className="user-head-text">プロフィール画像</h3>
                         {user.profilePicture && <img src={user.profilePicture} alt="プロフィール画像" />}
                     </div>
-                    <div className="sign-element-container">
-                        <h3 className="sign-head-text">メールアドレス</h3>
-                        <input type="text" name="email" value={user.email} onChange={handleChange} placeholder="メールアドレス" />
+                    <div className="user-element-container">
+                        <h3 className="user-head-text">メールアドレス</h3>
+                        <input className="user-input" type="text" name="email" value={user.email} onChange={handleChange} placeholder="メールアドレス" />
                     </div>
-                    <div className="sign-element-container">
-                        <h3 className="sign-head-text">ニックネーム</h3>
-                        <input type="text" name="nickname" value={user.nickname} onChange={handleChange} placeholder="ニックネーム" />
+                    <div className="user-element-container">
+                        <h3 className="user-head-text">ニックネーム</h3>
+                        <input className="user-input" type="text" name="nickname" value={user.nickname} onChange={handleChange} placeholder="ニックネーム" />
                     </div>
-                    <div className="sign-element-container">
-                        <h3 className="sign-head-text">プロフィールテキスト</h3>
-                        <input type="text" name="profileText" value={user.profileText} onChange={handleChange} placeholder="プロフィールテキスト" />
+                    <div className="user-element-container">
+                        <h3 className="user-head-text">プロフィールテキスト</h3>
+                        <input className="user-input" type="text" name="profileText" value={user.profileText} onChange={handleChange} placeholder="プロフィールテキスト" />
                     </div>
-                    <div className="sign-element-container">
-                        <h3 className="sign-head-text">旧パスワード（変更希望時のみ）</h3>
-                        <input type="password" name="oldPassword" value={user.oldPassword} onChange={handleChange} placeholder="旧パスワード" />
+                    <div className="user-element-container">
+                        <h3 className="user-head-text">旧パスワード（変更希望時のみ）</h3>
+                        <input className="user-input" type="password" name="oldPassword" value={user.oldPassword} onChange={handleChange} placeholder="旧パスワード" />
                     </div>
-                    <div className="sign-element-container">
-                        <h3 className="sign-head-text">新パスワード（変更希望時のみ）</h3>
-                        <input type="password" name="newPassword" value={user.newPassword} onChange={handleChange} placeholder="新パスワード" />
+                    <div className="user-element-container">
+                        <h3 className="user-head-text">新パスワード（変更希望時のみ）</h3>
+                        <input className="user-input" type="password" name="newPassword" value={user.newPassword} onChange={handleChange} placeholder="新パスワード" />
                     </div>
-                    <button type="submit">更新</button>
+                    <button className="user-button" type="submit">更新</button>
                 </div>
                 </form>
             </>

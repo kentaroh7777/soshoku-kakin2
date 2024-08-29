@@ -1,0 +1,9 @@
+.container {
+  padding: 20px;
+  text-align: center;
+}
+
+.magform {
+  display: flex;
+  justify-content: center;
+}
