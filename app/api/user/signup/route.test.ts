@@ -22,9 +22,9 @@ beforeEach(async () => {
   await User.deleteMany({})
 })
 
-describe('/api/auth/signup', () => {
+describe('http://localhost:3000/api/auth/signup', () => {
   const createRequest = (body: any) => {
-    return new NextRequest('/api/auth/signup', {
+    return new NextRequest('http://localhost:3000/api/auth/signup', {
       method: 'POST',
       body: JSON.stringify(body),
     })
@@ -155,7 +155,7 @@ describe('/api/auth/signup', () => {
   })
 
   it('handles malformed JSON in request body', async () => {
-    const req = new NextRequest('/api/auth/signup', {
+    const req = new NextRequest('http://localhost:3000/api/auth/signup', {
       method: 'POST',
       body: 'malformed json',
     })

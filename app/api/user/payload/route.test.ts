@@ -35,7 +35,7 @@ describe('User Read API', () => {
 
   const createUserAndLogin = async (body: any) => {
     testUser = await User.create(body) as mongoose.HydratedDocument<typeof User>
-    const req = new NextRequest('/api/user/login', {
+    const req = new NextRequest('http://localhost:3000/api/user/login', {
       method: 'POST',
       body: JSON.stringify({ email: body.email, password: body.password }),
     })
@@ -46,7 +46,7 @@ describe('User Read API', () => {
   }
 
   const createRequest = (token: string ) => {
-    return new NextRequest(`/api/user/payload`, {
+    return new NextRequest(`http://localhost:3000/api/user/payload`, {
       method: 'GET',
       headers: {
         "Accept": "application/json",

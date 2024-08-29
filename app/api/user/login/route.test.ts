@@ -28,7 +28,7 @@ describe('User Login API', () => {
   })
 
   const createRequest = (body: any) => {
-    return new NextRequest('/api/user/login', {
+    return new NextRequest('http://localhost:3000/api/user/login', {
       method: 'POST',
       body: JSON.stringify(body),
     })
@@ -58,7 +58,7 @@ describe('User Login API', () => {
   })
 
   it('should return 400 error for invalid request body', async () => {
-    const req = new NextRequest('/api/user/login', {
+    const req = new NextRequest('http://localhost:3000/api/user/login', {
       method: 'POST',
       body: 'invalid json',
     })

@@ -24,7 +24,7 @@ describe('User Read API', () => {
   })
 
   const createRequest = (id: string) => {
-    return new NextRequest(`/api/user/read/${id}`, {
+    return new NextRequest(`http://localhost:3000/api/user/read/${id}`, {
       method: 'GET',
     })
   }

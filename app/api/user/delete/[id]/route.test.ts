@@ -44,7 +44,7 @@ describe('User Delete API', () => {
   
   const createUserAndLogin = async (body: any) => {
     testUser = await User.create(body)
-    const req = new NextRequest('/api/user/login', {
+    const req = new NextRequest('http://localhost:3000/api/user/login', {
       method: 'POST',
       body: JSON.stringify({ email: body.email, password: body.password }),
     })
@@ -56,7 +56,7 @@ describe('User Delete API', () => {
   const createRequest = (body: any, token: string, targetUserId: string | null = null) => {
     const decoded = jwt.verify(token, JWT_SECRET())
     const userId = targetUserId ? targetUserId : (decoded as jwt.JwtPayload).userId
-    return new NextRequest(`/api/user/delete/${userId}`, {
+    return new NextRequest(`http://localhost:3000/api/user/delete/${userId}`, {
       method: 'DELETE',
       headers: {
         "Accept": "application/json",
@@ -85,7 +85,7 @@ describe('User Delete API', () => {
   it('should return 400 error for invalid request body', async () => {
     const decoded = jwt.verify(token, JWT_SECRET())
     const userId = (decoded as jwt.JwtPayload).userId
-    const req = new NextRequest(`/api/user/delete/${userId}`, {
+    const req = new NextRequest(`http://localhost:3000/api/user/delete/${userId}`, {
       method: 'DELETE',
       headers: {
         "Accept": "application/json",
