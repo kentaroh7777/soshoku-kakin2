@@ -1,8 +1,3 @@
-
-export const sample = (a:number,b:number)=> {
-  return a+b
-}
-
 const Home = () => {
   return(
     <>

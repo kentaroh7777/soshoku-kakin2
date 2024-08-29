@@ -24,7 +24,7 @@ const Card = styled.div`
   position: absolute;
   width: 200px;
   height: 100px;
-  background-color: ${props => props.bgcolor || '#ffffff'};
+  background-color: ${props => props.color || '#ffffff'};
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   padding: 10px;
@@ -46,14 +46,29 @@ const Button = styled.button`
   }
 `;
 
-const DraggableCard = ({ id, card, moveCard }) => {
-  const ref = useRef(null);
+interface CardProps {
+  id: number;
+  card: {
+    left: number;
+    top: number;
+    zIndex: number;
+    color: string;
+    title: string;
+    content: string;
+  };
+  moveCard: (id: number, left: number, top: number) => void;
+}
+
+const DraggableCard: React.FC<CardProps> = ({ id, card, moveCard }) => {
+  const ref = useRef<HTMLDivElement>(null);
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'card',
     item: (monitor) => {
+      if (!ref.current) return null; // Add null check
       const cardRect = ref.current.getBoundingClientRect();
       const clientOffset = monitor.getClientOffset();
+      if (!clientOffset) return null; // Add null check for clientOffset
       return { 
         id, 
         left: card.left, 
@@ -80,7 +95,7 @@ const DraggableCard = ({ id, card, moveCard }) => {
         top: card.top,
         zIndex: card.zIndex,
       }}
-      bgcolor={card.color}
+      color={card.color}
     >
       <h3>{card.title}</h3>
       <p>{card.content}</p>
@@ -88,17 +103,34 @@ const DraggableCard = ({ id, card, moveCard }) => {
   );
 };
 
-const StackedCards = ({ cards, moveCard }) => {
-  const containerRef = useRef(null);
+interface CardType {
+  id: number;
+  title: string;
+  content: string;
+  color: string;
+  left: number;
+  top: number;
+  zIndex: number;
+}
+
+interface StackedCardsProps {
+  cards: CardType[];
+  moveCard: (id: number, left: number, top: number) => void;
+}
+
+const StackedCards: React.FC<StackedCardsProps> = ({ cards, moveCard }) => {
+  const containerRef = useRef<HTMLDivElement>(null); // Add type annotation
 
   const [, drop] = useDrop(() => ({
     accept: 'card',
-    drop(item, monitor) {
-      const containerRect = containerRef.current.getBoundingClientRect();
+    drop(item: any, monitor) {
+      if (!containerRef.current) return; // Add null check
+      const containerRect = containerRef.current!.getBoundingClientRect(); // Use non-null assertion
       const dropPosition = monitor.getClientOffset();
+      if (!dropPosition) return; // Add null check for dropPosition
       
-      let left = dropPosition.x - containerRect.left - item.mouseOffsetX;
-      let top = dropPosition.y - containerRect.top - item.mouseOffsetY;
+      let left = dropPosition.x - containerRect.left - (item as any).mouseOffsetX;
+      let top = dropPosition.y - containerRect.top - (item as any).mouseOffsetY;
 
       // Constrain the card within the container boundaries
       left = Math.max(0, Math.min(left, containerRect.width - item.width));
@@ -110,7 +142,12 @@ const StackedCards = ({ cards, moveCard }) => {
   }), [moveCard]);
 
   return (
-    <CardContainer ref={node => { containerRef.current = node; drop(node); }}>
+    <CardContainer ref={node => { 
+      if (node) {
+        drop(node); 
+//        containerRef.current = node; // Assign after drop
+      }
+    }}>
       {cards.map((card) => (
         <DraggableCard
           key={card.id}
@@ -130,7 +167,7 @@ const StackedCardsPage = () => {
     { id: 3, title: "Card 3", content: "Draggable Card 3", color: "#ccccff", left: 40, top: 220, zIndex: 1 },
   ]);
 
-  const moveCard = useCallback((id, left, top) => {
+  const moveCard = useCallback((id: number, left: number, top: number) => {
     setCards(prevCards => 
       prevCards.map(card => {
         if (card.id === id) {
