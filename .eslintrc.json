@@ -1,5 +1,5 @@
 {
-  "extends": ["next/core-web-vitals", "plugin:vitest/recommended"],
+  "extends": ["next", "next/core-web-vitals", "plugin:vitest/recommended"],
   "plugins": ["vitest"],
   "rules": {
     // 必要に応じてルールを追加または調整してください
