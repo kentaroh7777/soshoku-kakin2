@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
-import fetch from 'node-fetch';
 import { createServer } from 'http';
 import { parse } from 'url';
 import next from 'next';

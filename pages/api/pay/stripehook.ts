@@ -27,7 +27,7 @@ export default async function handler( req: NextApiRequest, res: NextApiResponse
 
     const buf = await buffer(req);
     const sig = req.headers['stripe-signature'];
-    // console.log(`stripehook buf: ${buf}`);
+    // console.log(`stripehook bus: ${buf}`);
     // console.log(`stripehook sig: ${sig}`);
 
     let event;
@@ -51,6 +51,7 @@ export default async function handler( req: NextApiRequest, res: NextApiResponse
         const subscriptionCreated = event.data.object;
         // Then define and call a function to handle the event customer.subscription.created
         // ここでユーザー新規作成。StripeのIDに重複はないとする
+        const customer = await stripe.customers.retrieve(subscriptionCreated.customer as string);
         const userCreated = new User({
             email: `${subscriptionCreated.customer}@dummy.com`,
             password: 'dummy123',
@@ -58,6 +59,9 @@ export default async function handler( req: NextApiRequest, res: NextApiResponse
         })
         await userCreated.save();
         console.log(`Customer ID:${subscriptionCreated.customer} user was created!`);
+        if ( 'email' in customer ) {
+            console.log(`Customer email: ${customer.email}`);
+        }
         break;
 
       case 'customer.subscription.deleted':
