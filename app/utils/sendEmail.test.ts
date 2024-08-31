@@ -3,7 +3,7 @@ import sendEmail from './sendEmail';
 
 describe('sendEmail', () => {
   it('should send an email successfully', async () => {
-    const to = 'kentaroisp@gmail.com';
+    const to = 'kabuco.h@gmail.com';
     const subject = 'Test Subject';
     const text = 'Test email body';
 

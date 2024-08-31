@@ -9,18 +9,19 @@ const sendEmail = async (to: string, subject: string, text: string) => {
         console.log(`process.env.SMTP_USER: ${process.env.SMTP_USER}`);
         console.log(`process.env.SMTP_PASS: ${process.env.SMTP_PASS}`);
         const transporter = nodemailer.createTransport({
-            host: nextConfig.env.SMTP_HOST,
-            port: Number(process.env.SMTP_PORT),
-            secure: true, // true for 465, false for other ports
+            // host: nextConfig.env.SMTP_HOST,
+            // port: Number(process.env.SMTP_PORT),
+            // secure: true, // true for 465, false for other ports
+            service: 'gmail',
             auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
+                user: process.env.GOOGLE_APP_USER,
+                pass: process.env.GOOGLE_APP_PASSWORD,
             },
         });
 
         // メールの内容
         const mailOptions = {
-            from: process.env.SMTP_USER,
+            from: process.env.GOOGLE_APP_USER,
             to: to,
             subject: subject,
             text: text,
