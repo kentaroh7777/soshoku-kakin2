@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { buffer } from 'micro';
 import Stripe from 'stripe';
 import connectDB from '../../../app/utils/database';
+import { User } from '../../../app/model/user';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY||'', {
   apiVersion: '2024-06-20',
@@ -48,16 +49,24 @@ export default async function handler( req: NextApiRequest, res: NextApiResponse
 
       case 'customer.subscription.created':
         const subscriptionCreated = event.data.object;
-        console.log(`Customer ID:${subscriptionCreated.customer} subscription was created!`);
         // Then define and call a function to handle the event customer.subscription.created
-        // ここでユーザー新規作成
+        // ここでユーザー新規作成。StripeのIDに重複はないとする
+        const userCreated = new User({
+            email: `${subscriptionCreated.customer}@dummy.com`,
+            password: 'dummy123',
+            nickname: subscriptionCreated.customer, //keyとして使う
+        })
+        await userCreated.save();
+        console.log(`Customer ID:${subscriptionCreated.customer} user was created!`);
         break;
 
       case 'customer.subscription.deleted':
         const subscriptionDeleted = event.data.object;
-        console.log(`Customer ID:${subscriptionDeleted.customer} subscription was deleted!`);
         // Then define and call a function to handle the event customer.subscription.deleted
         // ここでユーザー削除
+        const userDeleted = await User.findOne({ nickname: subscriptionDeleted.customer });
+        await userDeleted?.deleteOne();
+        console.log(`Customer ID:${subscriptionDeleted.customer} user was deleted!`);
         break;
 
       default:

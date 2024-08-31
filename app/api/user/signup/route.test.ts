@@ -24,7 +24,7 @@ beforeEach(async () => {
 
 describe('http://localhost:3000/api/auth/signup', () => {
   const createRequest = (body: any) => {
-    return new NextRequest('http://localhost:3000/api/auth/signup', {
+    return new NextRequest('http://localhost:3000/api/user/signup', {
       method: 'POST',
       body: JSON.stringify(body),
     })
