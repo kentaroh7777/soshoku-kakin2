@@ -40,8 +40,9 @@ describe('User Login API', () => {
       password: 'password123',
     })
 
+    // メールアドレスは大文字小文字を区別しない
     const req = createRequest({
-      email: 'test@example.com',
+      email: 'TEST@EXAMPLE.COM',
       password: 'password123',
     })
     const res = await POST(req)
