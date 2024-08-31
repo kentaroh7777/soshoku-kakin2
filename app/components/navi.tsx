@@ -12,6 +12,7 @@ const Navi = () => {
         return(
             <nav>
                 <ul className="header-navi">
+                    <li className="header-navi-item"><Link href="https://buy.stripe.com/test_aEUcPFfUYdcSh206oo"><FaUserPlus className="header-navi-icon" />有料会員</Link></li>
                     <li className="header-navi-item"><Link href="/user/login"><RiLoginBoxLine className="header-navi-icon" />ログイン</Link></li>
                 </ul>
             </nav>
