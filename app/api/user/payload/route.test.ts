@@ -25,6 +25,7 @@ describe('User Read API', () => {
   beforeEach(async () => {
     await User.deleteMany({})
     token = await createUserAndLogin({
+        customerId: 'test',
         email: 'test@example.com',
         password: 'password123',
         profileText: 'Initial profile',
@@ -37,7 +38,7 @@ describe('User Read API', () => {
     testUser = await User.create(body) as mongoose.HydratedDocument<typeof User>
     const req = new NextRequest('http://localhost:3000/api/user/login', {
       method: 'POST',
-      body: JSON.stringify({ email: body.email, password: body.password }),
+      body: JSON.stringify({ customerId: body.customerId, password: body.password }),
     })
     const res = await POST(req)
     const data = await res.json()

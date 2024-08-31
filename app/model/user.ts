@@ -4,15 +4,18 @@ import jwt from 'jsonwebtoken'
 import { JWT_SECRET } from '../../next.config.mjs'
 
 const userSchema = new mongoose.Schema({
+  customerId: { // Master key
+    type: String,
+    unique: true,
+    required: [true, 'Customer IDを入力してください'],
+  },
   email: {
     type: String,
-    required: [true, 'emailアドレスを入力してください'],
-    unique: true,
     lowercase: true,
     trim: true,
     validate: {
       validator: function(v: string) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+        return v==='' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
       },
       message: props => `${props.value} is not a valid email address!`
     },

@@ -20,7 +20,7 @@ export async function PUT(request: Request, context: {params: {id: string}}): Pr
             return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
         }
 
-        const { email, oldPassword, newPassword, nickname, profileText, profilePicture, permission } = body;
+        const { customerId, email, oldPassword, newPassword, nickname, profileText, profilePicture, permission } = body;
 
         // middlewareは信用できない…
         const token = await request.headers.get("Authorization")?.split(" ")[1]
@@ -47,6 +47,10 @@ export async function PUT(request: Request, context: {params: {id: string}}): Pr
             }
         }
 
+        if (customerId) {
+            targetUser.customerId = customerId;
+        }
+        
         if (email !== undefined) {
             const trimmedEmail = email.trim();
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {

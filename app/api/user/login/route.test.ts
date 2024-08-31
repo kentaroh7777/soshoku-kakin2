@@ -36,12 +36,14 @@ describe('User Login API', () => {
 
   it('should successfully sign in a user with correct credentials', async () => {
     const testUser = await User.create({
+      customerId: 'test',
       email: 'test@example.com',
       password: 'password123',
     })
 
     // メールアドレスは大文字小文字を区別しない
     const req = createRequest({
+      customerId: 'test',
       email: 'TEST@EXAMPLE.COM',
       password: 'password123',
     })
@@ -70,22 +72,24 @@ describe('User Login API', () => {
     expect(data.error).toBe('Invalid request body')
   })
 
-  it('should return 400 error for missing email or password', async () => {
-    const req = createRequest({ email: 'test@example.com' })
+  it('should return 400 error for missing customerId or password', async () => {
+    const req = createRequest({ customerId: 'test' })
     const res = await POST(req)
 
     expect(res.status).toBe(400)
     const data = await res.json()
-    expect(data.error).toBe('Email and password are required')
+    expect(data.error).toBe('Customer ID and password are required')
   })
 
   it('should return 401 error for incorrect password', async () => {
     await User.create({
+      customerId: 'test',
       email: 'test@example.com',
       password: 'password123',
     })
 
     const req = createRequest({
+      customerId: 'test',
       email: 'test@example.com',
       password: 'wrongpassword',
     })
@@ -98,6 +102,7 @@ describe('User Login API', () => {
 
   it('should return 404 error for non-existent user', async () => {
     const req = createRequest({
+      customerId: 'nonexistenttest',
       email: 'nonexistent@example.com',
       password: 'password123',
     })

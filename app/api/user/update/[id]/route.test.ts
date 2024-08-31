@@ -29,6 +29,7 @@ describe('User Update API', () => {
   beforeEach(async () => {
     await User.deleteMany({})
     token = await createUserAndLogin({
+        customerId: 'test',
         email: 'test@example.com',
         password: 'password123',
         profileText: 'Initial profile',
@@ -43,7 +44,7 @@ describe('User Update API', () => {
     const testUser = await User.create(body)
     const req = new NextRequest('http://localhost:3000/api/user/login', {
       method: 'POST',
-      body: JSON.stringify({ email: body.email, password: body.password }),
+      body: JSON.stringify({ customerId: body.customerId, password: body.password }),
     })
     const res = await POST(req)
     const data = await res.json()
@@ -238,6 +239,7 @@ describe('User Update API', () => {
   it('should not allow non-admin user to update another user', async () => {
     // Create a second regular user
     const secondUser = new User({
+      customerId: 'test2',
       email: 'second@example.com',
       password: 'secondpassword123',
       permission: 'user'
@@ -246,6 +248,7 @@ describe('User Update API', () => {
 
     // Update data by the first regular user
     const updateData = {
+      customerId: 'testadmin',
       email: 'updatedsecond@example.com',
       profileText: 'User updated profile',
       permission: 'admin'
@@ -274,6 +277,7 @@ describe('User Update API', () => {
   it('should allow admin to update another user', async () => {
     // Create an admin user
     const adminUser = new User({
+      customerId: 'testadmin',
       email: 'admin@example.com',
       password: 'adminpassword123',
       permission: 'admin'
@@ -285,6 +289,7 @@ describe('User Update API', () => {
 
     // Create a regular user
     const regularUser = new User({
+      customerId: 'testregular',
       email: 'regular@example.com',
       password: 'regularpassword123',
       permission: 'user'

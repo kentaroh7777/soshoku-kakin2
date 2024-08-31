@@ -5,6 +5,7 @@ import { buffer } from 'micro';
 import Stripe from 'stripe';
 import connectDB from '../../../app/utils/database';
 import { User } from '../../../app/model/user';
+import sendEmail from '../../../app/utils/sendEmail';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY||'', {
   apiVersion: '2024-06-20',
@@ -15,6 +16,24 @@ export const config = {
     bodyParser: false,
   },
 };
+
+const sendEmailToCustomer = async (email: string, customerId: string) => {
+    console.log(`sendEmailToCustomer email: ${email}`);
+    console.log(`sendEmailToCustomer customerId: ${customerId}`);
+    await sendEmail(email,
+         '【重要】装飾アプリログイン情報',
+         `
+         ログイン情報
+
+         以下のURLにアクセスし、Customer IDを入力してログインしてください。
+         ---------------
+         URL: https://soshoku-kakin2.vercel.app/user/login
+         Your Customer ID: ${customerId}
+         ---------------
+        
+         `
+        );
+}
 
 export default async function handler( req: NextApiRequest, res: NextApiResponse ) {
   await connectDB();
@@ -52,15 +71,21 @@ export default async function handler( req: NextApiRequest, res: NextApiResponse
         // Then define and call a function to handle the event customer.subscription.created
         // ここでユーザー新規作成。StripeのIDに重複はないとする
         const customer = await stripe.customers.retrieve(subscriptionCreated.customer as string);
+        let email: string = "";
+        if ( 'email' in customer && customer.email!==null) {
+            console.log(`Customer email: ${customer.email}`);
+            email = customer.email as string;
+        }
         const userCreated = new User({
-            email: `${subscriptionCreated.customer}@dummy.com`,
+            customerId: subscriptionCreated.customer, //keyとして使う
+            email: email,
             password: 'dummy123',
-            nickname: subscriptionCreated.customer, //keyとして使う
         })
         await userCreated.save();
         console.log(`Customer ID:${subscriptionCreated.customer} user was created!`);
-        if ( 'email' in customer ) {
-            console.log(`Customer email: ${customer.email}`);
+        // ★ここにemail送信の実装を
+        if (email !== "") {
+            await sendEmailToCustomer(email, subscriptionCreated.customer as string);
         }
         break;
 
@@ -68,7 +93,7 @@ export default async function handler( req: NextApiRequest, res: NextApiResponse
         const subscriptionDeleted = event.data.object;
         // Then define and call a function to handle the event customer.subscription.deleted
         // ここでユーザー削除
-        const userDeleted = await User.findOne({ nickname: subscriptionDeleted.customer });
+        const userDeleted = await User.findOne({ customerId: subscriptionDeleted.customer });
         await userDeleted?.deleteOne();
         console.log(`Customer ID:${subscriptionDeleted.customer} user was deleted!`);
         break;

@@ -14,21 +14,20 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
         }
 
-        const { email, password } = body
+        const { customerId, email, password } = body
 
-        if (!email || !password) {
-            return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
+        if (!customerId || !password) {
+            return NextResponse.json({ error: 'Customer ID and password are required' }, { status: 400 })
         }
 
-        const trimmedEmail = email.trim()
-
-        const existingUser = await User.findOne({ email: trimmedEmail })
+        const existingUser = await User.findOne({ customerId: customerId })
         if (existingUser) {
             return NextResponse.json({ error: 'User already exists' }, { status: 409 })
         }
 
         const user = new User({
-            email: trimmedEmail,
+            customerId: customerId,
+            email: email ? email.trim() : "",
             password: password,
         })
 

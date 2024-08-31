@@ -13,14 +13,14 @@ export async function POST(req: NextRequest) {
   }
   try {
 
-    const { email, password } = body;
+    const { customerId, password } = body;
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    if (!customerId || !password) {
+      return NextResponse.json({ error: 'Customer ID and password are required' }, { status: 400 });
     }
 
     await connectDB();
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ customerId: customerId });
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });

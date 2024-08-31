@@ -32,6 +32,7 @@ describe('User Delete API', () => {
   beforeEach(async () => {
     await User.deleteMany({})
     token = await createUserAndLogin({
+        customerId: 'test',
         email: 'test@example.com',
         password: 'password123',
         profileText: 'Initial profile',
@@ -46,7 +47,7 @@ describe('User Delete API', () => {
     testUser = await User.create(body)
     const req = new NextRequest('http://localhost:3000/api/user/login', {
       method: 'POST',
-      body: JSON.stringify({ email: body.email, password: body.password }),
+      body: JSON.stringify({ customerId: body.customerId, password: body.password }),
     })
     const res = await POST(req)
     const data = await res.json()
@@ -68,7 +69,7 @@ describe('User Delete API', () => {
   }
 
   it('should successfully delete a user', async () => {
-    const req = createRequest({ email: 'test@example.com' },token)
+    const req = createRequest({ customerId: 'test' },token)
     const auth_res = await middleware(req)
     expect(auth_res.status).toBe(200)
 
@@ -106,7 +107,7 @@ describe('User Delete API', () => {
 
   it('should return 404 error for non-existent ID', async () => {
     const tokenForNonExistentUser = jwt.sign({ userId: '123456789012345678901234' }, nextConfig.env.JWT_SECRET!)
-    const req = createRequest({ email: 'nonexistent@example.com'}, tokenForNonExistentUser, 'nonexistentID' )
+    const req = createRequest({ customerId: 'nonexistentid'}, tokenForNonExistentUser, 'nonexistentID' )
     const auth_res = await middleware(req)
     expect(auth_res.status).toBe(200)
 
@@ -121,6 +122,7 @@ describe('User Delete API', () => {
   it('should return 401 error for non-admin user deletes another user', async () => {
     // Create a test2 user
     const test2User = new User({
+      customerId: 'test2',
       email: 'test2@example.com',
       password: 'password123',
       permission: 'user'
@@ -141,6 +143,7 @@ describe('User Delete API', () => {
   it('should return 201 for admin user deletes another user', async () => {
     // Create a test2 user
     const adminUser = new User({
+      customerId: 'testadmin',
       email: 'admin@example.com',
       password: 'password123',
       permission: 'admin'

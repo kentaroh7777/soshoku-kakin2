@@ -32,6 +32,7 @@ describe('User Read API', () => {
 
   it('should correctly read user information', async () => {
     const testUser = await User.create({
+      customerId: 'test',
       email: 'test@example.com',
       password: 'password123',
       profileText: 'Test profile',
@@ -45,13 +46,14 @@ describe('User Read API', () => {
     const data = await res.json()
     
     expect(data.user).toBeDefined()
+    expect(data.user.customerId).toBe('test')
     expect(data.user.email).toBe('test@example.com')
     expect(data.user.profileText).toBe('Test profile')
     expect(data.user.profilePicture).toBe('https://example.com/profile.jpg')
     expect(data.user.password).toBeUndefined()
   })
 
-  it('should return 404 error for non-existent email', async () => {
+  it('should return 404 error for non-existent Id', async () => {
     const req = createRequest('123456789012345678901234')
     const res = await GET(req, { params: { id: '123456789012345678901234' } })
 
