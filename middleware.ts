@@ -38,3 +38,5 @@ export const config = {
         "/api/user/delete/:path*"
     ],
 }
+
+
