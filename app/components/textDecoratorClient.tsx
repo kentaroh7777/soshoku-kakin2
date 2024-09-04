@@ -7,7 +7,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import styles from './textDecoratorClient.module.css';
 import { loginUserID } from '../utils/useAuth'
-import { getStringArray, addString, MAX_ELEMENTS } from '../utils/storageString';
+import { getStringArray, addString, saveStringArray, MAX_ELEMENTS, STORAGE_FAVO_KEY, STORAGE_PREMIUM_KEY } from '../utils/storageString';
 
 const Slider = dynamic(() => import('react-slick'), { ssr: false }) as React.ComponentType<SliderSettings>;
 
@@ -58,14 +58,26 @@ export default function TextDecoratorClient() {
   const [outputText, setOutputText] = useState('');
   const [sliderInitialized, setSliderInitialized] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [favorites, setFavorites] = useState<{content:string}[]>([]);
+  const [favorites, setFavorites] = useState<{id:string, content:string}[]>([]);
+  const [premium, setPremium] = useState<{id:string, content:string}[]>([]);
 
   useEffect(() => {
-    const favorite_content = getStringArray();
+    // ローカルストレージからお気に入りを復元
+    const favorite_content = getStringArray(STORAGE_FAVO_KEY);
     setFavorites(favorite_content.map((fav:string) => (
-//      {id: Math.random().toString(36), content: fav}
-      {content: fav}
+      {id: Math.random().toString(36), content: fav}
     )));
+    // ローカルストレージからプレミアム装飾を復元。置き換え文字列は'TEXT'
+    const premium_content = getStringArray(STORAGE_PREMIUM_KEY);
+    if (premium_content.length > 0) {
+      setPremium(premium_content.map((premium:string, index:number) => (
+        {id: `style${12 + index}`, content: premium.replace(/TEXT/g, `Style${12 + index}`)}
+      )));
+    } else {
+      //ローカルストレージにプレミアムがない場合は、デフォルトを設定&保存
+      setPremium(premiumDefault);
+      saveStringArray(premiumDefault.map((premium: {id:string, content:string}) => premium.content.replace(/Style\d+/g, 'TEXT')), STORAGE_PREMIUM_KEY);
+    }
   }, []);
 
   useEffect(() => {
@@ -113,7 +125,7 @@ export default function TextDecoratorClient() {
     { id: 'style11', content: '╭━━━━╮\n　Style11　\n╰━━ｖ━╯' }
   ];
 
-  const premiumStyles = [
+  const premiumDefault = [
     { id: 'style12', content: '【Style12】' },
     { id: 'style13', content: '『Style13』' },
     { id: 'style14', content: '《Style14》' },
@@ -123,16 +135,6 @@ export default function TextDecoratorClient() {
     { id: 'style18', content: '（Style18）' },
     { id: 'style19', content: '〈Style19〉' },
     { id: 'style20', content: '［Style20］' },
-    { id: 'style21', content: '｛Style21｝' },
-    { id: 'style22', content: '〖Style22〗' },
-    { id: 'style23', content: '【Style23】' },
-    { id: 'style24', content: '『Style24』' },
-    { id: 'style25', content: '《Style25》' },
-    { id: 'style26', content: '〔Style26〕' },
-    { id: 'style27', content: '≪Style27≫' },
-    { id: 'style28', content: '「Style28」' },
-    { id: 'style29', content: '（Style29）' },
-    { id: 'style30', content: '〈Style30〉' }
   ];
 
   const generateDecoratedText = (style: {id: string, content: string}) => {
@@ -157,9 +159,8 @@ export default function TextDecoratorClient() {
   
   const handleAddToFavorites = () => {
     if (favorites.length < MAX_ELEMENTS) {
-      addString(outputText);
-//      setFavorites([...favorites, {id: Math.random().toString(36), content: outputText}]);
-      setFavorites([...favorites, {content: outputText}]);
+      addString(outputText, STORAGE_FAVO_KEY);
+      setFavorites([...favorites, {id: Math.random().toString(36), content: outputText}]);
     } else {
       alert(`お気に入りは${MAX_ELEMENTS}個までしか保存できません。`);
     }
@@ -212,7 +213,7 @@ export default function TextDecoratorClient() {
             <div className={styles.premiumContainer}>
               <h3>プレミアムユーザー専用装飾</h3>
               <Slider {...settings}>
-                {premiumStyles.map((style) => (
+                {premium.map((style) => (
                   <div 
                     key={style.id}
                     className={styles.slide}
@@ -227,11 +228,16 @@ export default function TextDecoratorClient() {
                   </div>
                 ))}
               </Slider>
+              {userID !== "" && (
+                <div className={styles.favoButtonContainer}>
+                  <a href="/premium"><button className={styles.favoButton}>プレミアム装飾編集</button></a>
+                </div>
+              )} 
               <h3 className={styles.favoHeader}>お気に入り</h3>
               <div className={styles.favoContainer}>
                 {favorites.map((fav) => (
                   <div 
-                    //key={fav.id}
+                    key={fav.id}
                     className={styles.favoCard}
                     onClick={() => {
 //                      const decoratedText = generateDecoratedText(fav);
@@ -239,7 +245,7 @@ export default function TextDecoratorClient() {
                       copyToClipboard(fav.content);
                     }}
                   >
-                    <pre //key={fav.id}
+                    <pre key={fav.id}
                     className={styles.sampleText}>
                         {fav.content}
                     </pre>

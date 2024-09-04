@@ -1,36 +1,35 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { getStringArray, removeString, clearStringArray } from '../utils/storageString';
-
+import { getStringArray, removeString, clearStringArray, STORAGE_FAVO_KEY } from '../utils/storageString';
 
 const FavoritesTable = () => {
     const [favorites, setFavorites] = useState<string[]>([]);
 
     useEffect(() => {
-        setFavorites(getStringArray());
+        setFavorites(getStringArray(STORAGE_FAVO_KEY));
     }, []);
 
     const handleRemove = (index: number) => {
-        removeString(index);
-        setFavorites(getStringArray());
+        removeString(index, STORAGE_FAVO_KEY);
+        setFavorites(getStringArray(STORAGE_FAVO_KEY));
     };
 
     const handleClearAll = () => {
-        clearStringArray();
+        clearStringArray(STORAGE_FAVO_KEY);
         setFavorites([]);
     };
 
     return (
         <div>
             <h2>お気に入り管理</h2>
-            <button onClick={handleClearAll}>Clear All</button>
+            <button className="alert-button" onClick={handleClearAll}>すべて削除</button>
             <table>
                 <tbody>
                     {favorites.map((item, index) => (
                         <tr key={index}>
                             <td><pre>{item}</pre></td>
                             <td>
-                                <button onClick={() => handleRemove(index)}>Remove</button>
+                                <button className="alert-button" onClick={() => handleRemove(index)}>削除</button>
                             </td>
                         </tr>
                     ))}
