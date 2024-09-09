@@ -24,13 +24,18 @@
   margin-bottom: 20px;
 }
 
-.input {
+.input, .textarea {
   font-size: 1.5rem;
   min-height: 5rem;
   padding: 10px;
   margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+.textarea {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 .output {
   min-height: 5rem;

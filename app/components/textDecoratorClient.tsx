@@ -138,7 +138,83 @@ export default function TextDecoratorClient() {
   ];
 
   const generateDecoratedText = (style: {id: string, content: string}) => {
-    const decoratedText = style.content.replace(new RegExp(style.id, 'i'), inputText);
+    let decoratedText='';
+    const longestLineLength = Math.max(...inputText.split('\n').map(line => line.length));
+
+    const adjustBorderStyle = (baseTop:string, middle:string, baseBottom:string, length:number) => {
+        let adjustedMiddle = middle.repeat(length); 
+        let adjustedTop = baseTop.charAt(0) + adjustedMiddle + baseTop.charAt(baseTop.length - 1);
+        let adjustedBottom = baseBottom.charAt(0) + adjustedMiddle + baseBottom.charAt(baseBottom.length - 1);
+        return adjustedTop + '\n' + inputText + '\n' + adjustedBottom;
+    };
+
+    switch (style.id) {
+        case 'style1':
+            decoratedText = `◤${inputText}◢`;
+            break;
+        case 'style3':
+            if (longestLineLength <= 5) {
+                decoratedText = `◤◢◤◢◤◢◤◢\n${inputText}\n◤◢◤◢◤◢◤◢`;
+            } else {
+                let middle = '◤◢'.repeat(Math.ceil(longestLineLength / 2));
+                decoratedText = `${middle}\n${inputText}\n${middle}`;
+            }
+            break;
+        case 'style2':
+            decoratedText = `◤◢◤${inputText}◢◤◢`;
+            break;
+        case 'style4':
+            let topBorder4 = '◤' + '￣'.repeat(longestLineLength *0.9 ) + '◥';
+            let bottomBorder4 = '◣' + '＿'.repeat(longestLineLength *0.9) + '◢';
+            decoratedText = `${topBorder4}\n ${inputText} \n${bottomBorder4}`;
+            break;
+        case 'style5':
+            let topBorder5 = '┏' + '━'.repeat(longestLineLength) + '┓';
+            let bottomBorder5 = '┗' + '━'.repeat(longestLineLength) + '┛';
+            decoratedText = `${topBorder5}\n${inputText}\n${bottomBorder5}`;
+            break;
+        case 'style6':
+            decoratedText = adjustBorderStyle('◇', '━', '◇', longestLineLength);
+            break;
+        case 'style7':
+            decoratedText = adjustBorderStyle('╋', '━', '╋', longestLineLength);
+            break;
+        case 'style8':
+            decoratedText = adjustBorderStyle('■', '━', '■', longestLineLength);
+            break;
+        case 'style9':
+            if (longestLineLength <= 5) {
+                decoratedText = `▼△▼△▼\n${inputText}\n▼△▼△▼`;
+            } else {
+                let middle = '▼△'.repeat(Math.ceil(longestLineLength / 2));
+                decoratedText = `${middle}\n${inputText}\n${middle}`;
+            }
+            break;
+        case 'style10':
+            const lines = inputText.split(/\r\n|\r|\n/);
+            const maxLength = Math.max(...lines.map(line => line.length));
+            const top10 = `＿${"人".repeat(maxLength + 2)}＿`;
+            const middleLines = lines.map(line => `＞ ${line} ＜`.padEnd(maxLength, ' '));
+            const middle10 = middleLines.join('\n');
+            const bottom10 = `￣Y^${"Y^".repeat(maxLength )}￣`;
+            decoratedText = [top10, middle10, bottom10].join("\n");
+            break;
+        case 'style11': {
+            const lines = inputText.split(/\r\n|\r|\n/);
+            const maxLength = Math.max(...lines.map(line => line.length));
+            // 上部の境界線を調整
+            let topBorder = '╭' + '━'.repeat(maxLength) + '╮';
+            // 下部の境界線にｖを含めるための調整、辺の長さを一致させる
+            // 下部の境界線の長さが上部と一致するように再調整
+            let bottomBorder = '╰' + '━'.repeat(Math.floor((maxLength - 1) / 2)) + 'ｖ' + '━'.repeat(Math.ceil((maxLength - 1) / 2)) + '╯';
+            // 結果テキストの組み立て
+            decoratedText = `${topBorder}\n${lines.join('\n')}\n${bottomBorder}`;
+            break;
+        }
+               
+        default:
+            decoratedText = style.content.replace(new RegExp(style.id, 'i'), inputText);
+    }
     setOutputText(decoratedText);
     return decoratedText;
   };
@@ -171,12 +247,12 @@ export default function TextDecoratorClient() {
       <h2><img src="/text-decoration-generator.png" alt="Xテキスト装飾ジェネレーター" style={{ width: '100%', display: 'block', margin: '0 auto' }} /></h2>
       
       <div className={styles.inputContainer}>
-        <input
-          type="text"
+        <textarea
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           placeholder="テキストを入力してください。"
           className={styles.input}
+          rows={4}
         />
         <div className={styles.output}>{outputText}</div>
         {userID !== "" && (
