@@ -7,6 +7,8 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import styles from './textDecoratorClient.module.css';
 import { loginUserID } from '../utils/useAuth'
+import { getSession } from "@/app/serverActions";
+import { Session } from 'next-auth';
 import { getStringArray, addString, saveStringArray, MAX_ELEMENTS, STORAGE_FAVO_KEY, STORAGE_PREMIUM_KEY } from '../utils/storageString';
 
 const Slider = dynamic(() => import('react-slick'), { ssr: false }) as React.ComponentType<SliderSettings>;
@@ -52,7 +54,11 @@ function NextArrow(props: { className?: string; style?: React.CSSProperties; onC
     );
 }
 
-export default function TextDecoratorClient() {
+interface TextDecoratorClientProps {
+  session: Session | null;
+}
+
+const TextDecoratorClient: React.FC<TextDecoratorClientProps> = ({ session }) => {
   const userID = loginUserID()
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
@@ -60,6 +66,17 @@ export default function TextDecoratorClient() {
   const [copied, setCopied] = useState(false);
   const [favorites, setFavorites] = useState<{id:string, content:string}[]>([]);
   const [premium, setPremium] = useState<{id:string, content:string}[]>([]);
+  // const [session, setSession] = useState<Session | null>(null);
+
+  // useEffect(() => {
+  //   const sessionGetter = async () => {
+  //     const session = await getSession()
+  //     setSession(session)
+  //   }
+  //   sessionGetter()
+  // }, []);
+
+  // console.log(`session(client): ${JSON.stringify(session)}`)
 
   useEffect(() => {
     // ローカルストレージからお気に入りを復元
@@ -255,7 +272,7 @@ export default function TextDecoratorClient() {
           rows={4}
         />
         <div className={styles.output}>{outputText}</div>
-        {userID !== "" && (
+        {session && (
           <div className={styles.favoButtonContainer}>
             <button className={styles.favoButton} onClick={handleAddToFavorites}>お気に入りに追加</button>
           </div>
@@ -285,9 +302,9 @@ export default function TextDecoratorClient() {
               </div>
             ))}
           </Slider>
-          {userID !== "" && (
+          {session && (
             <div className={styles.premiumContainer}>
-              <h3>プレミアムユーザー専用装飾</h3>
+              {/* <h3>プレミアムユーザー専用装飾</h3>
               <Slider {...settings}>
                 {premium.map((style) => (
                   <div 
@@ -304,27 +321,28 @@ export default function TextDecoratorClient() {
                   </div>
                 ))}
               </Slider>
-              {userID !== "" && (
-                <div className={styles.favoButtonContainer}>
-                  <a href="/premium"><button className={styles.favoButton}>プレミアム装飾編集</button></a>
-                </div>
-              )} 
+
+              <div className={styles.favoButtonContainer}>
+                <a href="/premium"><button className={styles.favoButton}>プレミアム装飾編集</button></a>
+              </div> */}
+
               <h3 className={styles.favoHeader}>お気に入り</h3>
               <div className={styles.favoContainer}>
                 {favorites.map((fav) => (
                   <div 
                     key={fav.id}
-                    className={styles.favoCard}
+                    // className={styles.favoCard}
                     onClick={() => {
 //                      const decoratedText = generateDecoratedText(fav);
                       setOutputText(fav.content);
                       copyToClipboard(fav.content);
                     }}
                   >
-                    <pre key={fav.id}
-                    className={styles.sampleText}>
-                        {fav.content}
-                    </pre>
+                    <textarea key={fav.id}
+                      className={styles.favoText}
+                      value={fav.content}
+                      readOnly
+                    />
                   </div>
                 ))}
               </div>
@@ -338,3 +356,5 @@ export default function TextDecoratorClient() {
     </div>
   );
 }
+
+export default TextDecoratorClient;

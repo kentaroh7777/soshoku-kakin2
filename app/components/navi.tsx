@@ -4,16 +4,21 @@ import { FaUserPlus, FaUser } from "react-icons/fa"
 import { RiLoginBoxLine, RiLogoutBoxRLine } from "react-icons/ri"
 import { FaTimesCircle } from "react-icons/fa"
 import { loginUserID } from '../utils/useAuth'
+import { LoginButton, LogoutButton } from './authButton'
+import { Session } from "next-auth";
 
-const Navi = () => {
-    const userID = loginUserID()
+interface NaviProps {
+    session: Session | null;
+}
+
+const Navi: React.FC<NaviProps> = ({ session }) => {
+//    const userID = loginUserID()
 //    const userID = ""
-    if (userID === ""){
+    if (session){
         return(
             <nav>
                 <ul className="header-navi">
-                    <li className="header-navi-item"><Link href="https://buy.stripe.com/test_aEUcPFfUYdcSh206oo"><FaUserPlus className="header-navi-icon" />有料会員</Link></li>
-                    <li className="header-navi-item"><Link href="/user/login"><RiLoginBoxLine className="header-navi-icon" />ログイン</Link></li>
+                    <li className="header-navi-item"><LogoutButton /></li>
                 </ul>
             </nav>
         )
@@ -21,7 +26,7 @@ const Navi = () => {
         return(
             <nav>
                 <ul className="header-navi">
-                    <li className="header-navi-item"><Link href="/user/logout"><RiLogoutBoxRLine className="header-navi-icon" />ログアウト</Link></li>
+                    <li className="header-navi-item"><LoginButton /></li>
                 </ul>
             </nav>
         )

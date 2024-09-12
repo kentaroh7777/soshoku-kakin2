@@ -27,10 +27,10 @@ const FavoritesTable = () => {
                 <tbody>
                     {favorites.map((item, index) => (
                         <tr key={index}>
-                            <td><pre>{item}</pre></td>
                             <td>
                                 <button className="alert-button" onClick={() => handleRemove(index)}>削除</button>
                             </td>
+                            <td><pre>{item}</pre></td>
                         </tr>
                     ))}
                 </tbody>

@@ -71,7 +71,7 @@
   text-align: center;
 }
 
-.slide, .favoCard {
+.slide, .favoCard, .favoText {
   cursor: pointer;
   background: white;
   border-radius: 8px;
@@ -82,10 +82,16 @@
   text-align: center;
 }
 
+.favoText {
+  width: 97%;
+  height: 4rem;
+  resize: none;
+}
+
 /* お気に入りボタン */
 .favoContainer {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: wrap;
   width: 100%;
 }
@@ -94,7 +100,7 @@
 }
 .favoCard {
   margin-bottom: 20px;
-  width: 45%;
+  width: 100%;
 }
 .favoButtonContainer {
   display: flex;
@@ -160,6 +166,6 @@
 
 @media (min-width: 700px) {
   .favoCard { 
-    width: 30%;
+    width: 97%;
   }
 }
