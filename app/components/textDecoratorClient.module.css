@@ -71,7 +71,7 @@
   text-align: center;
 }
 
-.slide, .favoCard, .favoText {
+.slide, .favoCard {
   cursor: pointer;
   background: white;
   border-radius: 8px;
@@ -82,16 +82,16 @@
   text-align: center;
 }
 
-.favoText {
+/* .favoText {
   width: 97%;
   height: 4rem;
   resize: none;
-}
+} */
 
 /* お気に入りボタン */
 .favoContainer {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   flex-wrap: wrap;
   width: 100%;
 }
@@ -100,7 +100,7 @@
 }
 .favoCard {
   margin-bottom: 20px;
-  width: 100%;
+  width: 45%;
 }
 .favoButtonContainer {
   display: flex;
@@ -164,8 +164,9 @@
     color: #333;
 }
 
+/* デスクトップ（レスポンシブ） */
 @media (min-width: 700px) {
   .favoCard { 
-    width: 97%;
+    width: 30%;
   }
 }

@@ -1,7 +1,16 @@
 {
-  "extends": ["next", "next/core-web-vitals", "plugin:vitest/recommended"],
+  "extends": ["next"],
   "plugins": ["vitest"],
   "rules": {
     // 必要に応じてルールを追加または調整してください
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
+      "extends": ["plugin:vitest/recommended"]
+    }
+  ],
+  "env": {
+    "vitest-globals/env": true
   }
 }

@@ -64,6 +64,7 @@ const TextDecoratorClient: React.FC<TextDecoratorClientProps> = ({ session }) =>
   const [outputText, setOutputText] = useState('');
   const [sliderInitialized, setSliderInitialized] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState({id:'', content:''});
   const [favorites, setFavorites] = useState<{id:string, content:string}[]>([]);
   const [premium, setPremium] = useState<{id:string, content:string}[]>([]);
   // const [session, setSession] = useState<Session | null>(null);
@@ -81,9 +82,7 @@ const TextDecoratorClient: React.FC<TextDecoratorClientProps> = ({ session }) =>
   useEffect(() => {
     // ローカルストレージからお気に入りを復元
     const favorite_content = getStringArray(STORAGE_FAVO_KEY);
-    setFavorites(favorite_content.map((fav:string) => (
-      {id: Math.random().toString(36), content: fav}
-    )));
+    setFavorites(favorite_content.map((fav:string) => JSON.parse(fav)));
     // ローカルストレージからプレミアム装飾を復元。置き換え文字列は'TEXT'
     const premium_content = getStringArray(STORAGE_PREMIUM_KEY);
     if (premium_content.length > 0) {
@@ -156,6 +155,11 @@ const TextDecoratorClient: React.FC<TextDecoratorClientProps> = ({ session }) =>
 
   const generateDecoratedText = (style: {id: string, content: string}) => {
     let decoratedText='';
+    if (inputText === '') {
+      alert('テキストを入力してください。');
+      return '';
+    }
+
     const longestLineLength = Math.max(...inputText.split('\n').map(line => line.length));
 
     const adjustBorderStyle = (baseTop:string, middle:string, baseBottom:string, length:number) => {
@@ -232,7 +236,6 @@ const TextDecoratorClient: React.FC<TextDecoratorClientProps> = ({ session }) =>
         default:
             decoratedText = style.content.replace(new RegExp(style.id, 'i'), inputText);
     }
-    setOutputText(decoratedText);
     return decoratedText;
   };
 
@@ -252,8 +255,12 @@ const TextDecoratorClient: React.FC<TextDecoratorClientProps> = ({ session }) =>
   
   const handleAddToFavorites = () => {
     if (favorites.length < MAX_ELEMENTS) {
-      addString(outputText, STORAGE_FAVO_KEY);
-      setFavorites([...favorites, {id: Math.random().toString(36), content: outputText}]);
+      if (selectedStyle.id !== '') {
+        addString(JSON.stringify(selectedStyle), STORAGE_FAVO_KEY);
+        setFavorites([...favorites, selectedStyle]);
+      } else {
+        alert('装飾を選択してください。');
+      }
     } else {
       alert(`お気に入りは${MAX_ELEMENTS}個までしか保存できません。`);
     }
@@ -274,7 +281,7 @@ const TextDecoratorClient: React.FC<TextDecoratorClientProps> = ({ session }) =>
         <div className={styles.output}>{outputText}</div>
         {session && (
           <div className={styles.favoButtonContainer}>
-            <button className={styles.favoButton} onClick={handleAddToFavorites}>お気に入りに追加</button>
+            <button className={styles.favoButton} onClick={handleAddToFavorites}>スタイルをお気に入りに追加</button>
           </div>
         )}
         {copied && <div className={styles.copied}>テキストがコピーされました！</div>}
@@ -293,7 +300,9 @@ const TextDecoratorClient: React.FC<TextDecoratorClientProps> = ({ session }) =>
                 className={styles.slide}
                 onClick={() => {
                   const decoratedText = generateDecoratedText(style);
+                  setOutputText(decoratedText);
                   copyToClipboard(decoratedText);
+                  setSelectedStyle(style);
                 }}
               >
                 <pre key={style.id} className={styles.sampleText}>
@@ -331,18 +340,23 @@ const TextDecoratorClient: React.FC<TextDecoratorClientProps> = ({ session }) =>
                 {favorites.map((fav) => (
                   <div 
                     key={fav.id}
-                    // className={styles.favoCard}
+                    className={styles.favoCard}
                     onClick={() => {
 //                      const decoratedText = generateDecoratedText(fav);
-                      setOutputText(fav.content);
-                      copyToClipboard(fav.content);
+                    const decoratedText = generateDecoratedText(fav);
+                    setOutputText(decoratedText);
+                    copyToClipboard(decoratedText);
+                    setSelectedStyle(fav);
                     }}
                   >
-                    <textarea key={fav.id}
+                    <pre key={fav.id} >
+                      {fav.content}
+                    </pre>
+                    {/* <textarea key={fav.id}
                       className={styles.favoText}
                       value={fav.content}
                       readOnly
-                    />
+                    /> */}
                   </div>
                 ))}
               </div>
